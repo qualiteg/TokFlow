@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="TokFlow",
-    version="1.0.0",
+    version="1.0.1",
     author="Tom Misawa",
     author_email="riversun.org@gmail.com",
     description="LLM utility of streaming token realtime replacement processing",
