@@ -39,10 +39,42 @@ class TokFlow:
         self.replacer_list = replacer_list
         self.workers = []
         self.not_consumed_str = ""
+        self.prev_input_full_sentence = ""
+        self.prev_output_full_sentence = ""
         for from_token, to_token in replacer_list:
             self.workers.append(TokFlowWorker(from_token, to_token))
 
-    def put(self, token_str):
+    def put(self, str, opts={}):
+        in_type = opts.get("in_type", "spot")
+        out_type = opts.get("out_type", "spot")
+
+        if in_type == "spot":
+            if out_type == "spot":
+                return self.put_spot(str)
+            elif out_type == "full":
+                self.prev_output_full_sentence += self.put_spot(str)
+                return self.prev_output_full_sentence
+            else:
+                raise ValueError(f'unknown out_type:"{out_type}"')
+        elif in_type == "full":
+            if out_type == "spot":
+                return self.put_sentence(str)
+            elif out_type == "full":
+                self.prev_output_full_sentence+=self.put_sentence(str)
+                return self.prev_output_full_sentence
+            else:
+                raise ValueError(f'unknown out_type:"{out_type}"')
+
+        else:
+            raise ValueError(f'unknown in_type:"{in_type}"')
+
+    def put_sentence(self, sentence_str):
+        input_token = sentence_str[len(self.prev_input_full_sentence):]
+        ret = self.put(input_token)
+        self.prev_input_full_sentence = sentence_str
+        return ret
+
+    def put_spot(self, token_str):
         """
         本メソッドにトークンを順次インプットしていくと、検索対象文字列が置換された状態の戻り値を返す。
 
@@ -130,13 +162,42 @@ class TokFlow:
 
         return ret_val
 
-    def flush(self):
+    def flush(self,opts={}):
         """
         put処理が終了したあと、未消費のトークンバッファが残っている場合があるため、
         すべてのput処理が終了したあと、本メソッドを呼出し未消費のトークンバッファを取得する
         未消費のトークンバッファが存在すればそれも出力対象とする
         """
-        return self.not_consumed_str
+
+        in_type = opts.get("in_type", "spot")
+        out_type = opts.get("out_type", "spot")
+
+        if in_type == "spot":
+            if out_type == "spot":
+                final_str = self.not_consumed_str
+                pass
+            elif out_type == "full":
+                final_str = self.prev_output_full_sentence+self.not_consumed_str
+                pass
+            else:
+                raise ValueError(f'unknown out_type:"{out_type}"')
+        elif in_type == "full":
+            if out_type == "spot":
+                final_str = self.not_consumed_str
+                pass
+            elif out_type == "full":
+                final_str = self.prev_output_full_sentence + self.not_consumed_str
+                pass
+            else:
+                raise ValueError(f'unknown out_type:"{out_type}"')
+        else:
+            raise ValueError(f'unknown in_type:"{in_type}"')
+
+        self.prev_output_full_sentence = ""
+        self.prev_input_full_sentence = ""
+
+
+        return final_str
 
     def get_workers(self):
         return self.workers
