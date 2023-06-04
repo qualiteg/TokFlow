@@ -68,6 +68,54 @@ print(f"{tokf.flush()}", end="", flush=True)
 <img src="tokflow.gif">
 
 
+# 生成オプション
+
+`put` メソッドには `put(text,opts)` のように オプションパラメータ `opts` を指定することが可能です
+
+opts は `{"in_type":"spot","out_type:"spot" }` のように入力の形式と出力の形式を指定することが可能です。
+
+以下のように挙動します。
+
+| in_type  | out_type | Description                                    |
+| :------- | :------- |:-----------------------------------------------|
+| spot     | spot     | トークンを `put` メソッドに逐次送り、生成分のみ都度出力するモード。          |
+| spot     | full     | トークンを `put` メソッドに逐次送り、フルセンテンスを出力するモード。         |
+| full     | spot     | フルセンテンスを一度に `put` メソッドに送り、生成分のみ都度出力するモード。          | |
+| full     | full     | フルセンテンスを一度に `put` メソッドに送り、フルセンテンスを出力するモード。      |
+
+注意点：
+- `flush` メソッドを呼び出す前に全ての文字列を `put` メソッドに送る必要があります。特に `full` モードでは、全ての入力文字列を一度に送ります。
+- 出力のタイプ (`out_type`) が `full` の場合、最終的な結果を取得するためには `flush` メソッドを呼び出す必要があります。
+- それぞれのモードで一貫性を保つためには、`put` メソッドの呼び出しパターンと `flush` メソッドの使用を適切に組み合わせることが重要です。
+
+**コード例**
+
+`condition = {"in_type": "full", "out_type": "full"}` のようにルールを指定し、 `put` および `flush` の引数に `condition` を指定します。
+
+
+
+```python
+    tokf = TokFlow([("<NL>", "\n")])
+
+    condition = {"in_type": "full", "out_type": "full"}
+    prev_len = 0
+    for input_token_base in get_example_texts():
+        output_sentence = tokf.put(input_token_base, condition)
+
+        print(f"output_sentence:{output_sentence}")
+
+        if prev_len > len(output_sentence):
+            raise ValueError("Length error")
+
+        if "<NL>" in output_sentence:
+            raise Exception("Failure Must be converted str found.")
+
+        prev_len = len(output_sentence)
+
+    output_sentence = tokf.flush(condition)
+```
+
+
 # 処理設計
 
 ## ストリーム置換処理について
@@ -92,4 +140,3 @@ print(f"{tokf.flush()}", end="", flush=True)
 
 
 このように、検索対象文字列が出現するまでバッファリングさせることで、逐次トークンのほとんどはそのまま逐次表示させ、置換が必要な場合には表示を遅らせる、というストリーム処理することができる。
-

@@ -67,7 +67,50 @@ print(f"{tokf.flush()}", end="", flush=True)
 
 ![tokflow](https://github.com/riversun/TokFlow/assets/11747460/85f497bd-cf51-41d9-aaf5-ad5420f42b6a)
 
+# Generation Options
 
+The `put` method can take an optional parameter `opts` like `put(text,opts)`.
+
+`opts` can specify the format of the input and output, like `{"in_type":"spot","out_type:"spot" }`.
+
+It behaves as follows:
+
+| in_type  | out_type | Description                                    |
+| :------- | :------- | :---------------------------------------------- |
+| spot     | spot     | A mode that incrementally sends tokens to the `put` method, and outputs generated segments each time. |
+| spot     | full     | A mode that incrementally sends tokens to the `put` method, but outputs the full sentence. |
+| full     | spot     | A mode that sends the full sentence to the `put` method at once, but outputs generated segments each time. |
+| full     | full     | A mode that sends the full sentence to the `put` method at once, and outputs the full sentence. |
+
+Notes:
+- All text strings need to be sent to the `put` method before calling the `flush` method. Especially in `full` mode, all input strings are sent at once.
+- If the output type (`out_type`) is `full`, the `flush` method must be called to obtain the final result.
+- It's important to appropriately combine the call pattern of the `put` method and the use of the `flush` method to maintain consistency in each mode.
+
+**Code Example**
+
+Specify rules like `condition = {"in_type": "full", "out_type": "full"}`, and use `condition` as an argument for `put` and `flush`.
+
+```python
+    tokf = TokFlow([("<NL>", "\n")])
+
+    condition = {"in_type": "full", "out_type": "full"}
+    prev_len = 0
+    for input_token_base in get_example_texts():
+        output_sentence = tokf.put(input_token_base, condition)
+
+        print(f"output_sentence:{output_sentence}")
+
+        if prev_len > len(output_sentence):
+            raise ValueError("Length error")
+
+        if "<NL>" in output_sentence:
+            raise Exception("Failure Must be converted str found.")
+
+        prev_len = len(output_sentence)
+
+    output_sentence = tokf.flush(condition)
+```
 
 # Processing
 
