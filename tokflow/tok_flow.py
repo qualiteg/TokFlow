@@ -36,12 +36,31 @@ class TokFlow:
     """
 
     def __init__(self, replacer_list):
+        self.is_matched = False  # 現在、マッチしている状態か否か
+        self.is_possible_str_started = False  # True: 現在、どれか1つ以上のワーカーが検索対象文字列の連なる可能性のある文字列をスキャンしている場合
+
+        self.matched_worker = None  # 最後に　検索対象文字列　がマッチしたワーカー(どのワーカーがマッチして終わったのか、を取得するため)
+        self.prev_output_full_sentence = None
+        self.prev_input_full_sentence = None
+        self.not_consumed_str = None
+        self.workers = None
         self.replacer_list = replacer_list
+        self.clear()
+
+    def clear(self):
+        """
+        TokFlowの状態を初期化する
+        """
         self.workers = []
         self.not_consumed_str = ""
         self.prev_input_full_sentence = ""
         self.prev_output_full_sentence = ""
-        for from_token, to_token in replacer_list:
+
+        self.is_matched = False  # True: 現在の処理で検索対象文字列にマッチした状態
+        self.is_possible_str_started = False  # True: 現在、どれか1つ以上のワーカーが検索対象文字列の連なる可能性のある文字列をスキャンしている場合
+        self.matched_worker = None
+
+        for from_token, to_token in self.replacer_list:
             self.workers.append(TokFlowWorker(from_token, to_token))
 
     def put(self, str, opts={}):
@@ -60,7 +79,7 @@ class TokFlow:
             if out_type == "spot":
                 return self.put_sentence(str)
             elif out_type == "full":
-                self.prev_output_full_sentence+=self.put_sentence(str)
+                self.prev_output_full_sentence += self.put_sentence(str)
                 return self.prev_output_full_sentence
             else:
                 raise ValueError(f'unknown out_type:"{out_type}"')
@@ -101,36 +120,47 @@ class TokFlow:
         # 発見できなかったワーカーも発見できないという形でマッチングタスクは終えるので同様にクリアされ、次以降のトークン列の分析に再び使われる
         for worker in self.workers:
             # ワーカーにトークンを食わせる
-            # 前ターンに仮に検索対象文字列が発見された場合は、検索対象文字列以降は未処理文字列（未消費）となるので
-            # 未消費文字列＋新たなトークンを食わせる ことになる
+            # 前ターンに仮に検索対象文字列が発見された場合は、検索対象文字列以降は未処理文字列（未消費文字列）となるので
+            # 次ターンはワーカーに 未処理文字列（未消費文字列）＋新たなトークン を食わせる
             worker.eat(self.not_consumed_str + token_str)
 
         self.not_consumed_str = ""  # 未消費の文字列をクリアする
 
         potential = False  # True:どれか1つ以上のワーカーがマッチングのポテンシャルがある状態
         matched = False  # True: どれか1つのワーカーが検索対象文字列を発見した場合
-
+        self.is_matched = False
+        self.is_possible_str_started = False  # True: どれか1つ以上のワーカーが検索対象文字列の連なる可能性のある文字列をスキャンしている場合
         ttl_num_of_not_appearred = 0
 
         pending_str = ""
 
         for worker in self.workers:
+            # 各ワーカーを１つずつ確認し、現在の検索対象文字列発見状況を確認する
+
+            if worker.is_possible_str_started:
+                # どれか１つのワーカーが、検索対象文字列に連なる文字列の処理を開始していたらフラグをたてる
+                self.is_possible_str_started = True
 
             if worker.search_str_appeared:
-                # このワーカーが担当する検索文字列の出現が確認された
-                ret_val = worker.converted
+                # - このワーカーが担当する検索文字列の出現が確認されたとき
+
+                ret_val = worker.converted  #
                 self.not_consumed_str = worker.str_to_be_process_next
-                # 　1つ正解した
-                # ほかのすべてのマッチャーをクリアすべき
+
+                # 1つのワーカー(マッチャー)で正解したので、
+                # 次からまた新しい探索が始まるため、正解したワーカーも含め現在仕掛中の他のワーカーもクリアする
                 for _worker in self.workers:
                     _worker.clear()
 
                 matched = True
+                self.matched_worker = worker
+                self.is_matched = True
 
+                break
 
-            elif worker.str_matching_started:
+            elif worker.is_possible_str_started:
                 potential = True
-                pass
+
             elif worker.confirmed_not_to_appear:
                 # 本ワーカーが現在までトークン列を分析したところ、
                 # 本ワーカー対象の検索対象文字列が発見できないことが確定した場合
@@ -148,6 +178,8 @@ class TokFlow:
             else:
                 pass
 
+        # end for
+
         if ttl_num_of_not_appearred == len(self.workers):
             # すべてのワーカーが検索対象文字列を発見できないことが確定した場合、
             # トークンバッファはそのまま出力すればいいので、そのまま返す
@@ -156,13 +188,13 @@ class TokFlow:
         if not potential and not matched:
             # 検索対象文字列の出現可能性がなく、かつ、検索対象文字列の出現もしていない場合
             # ワーカーの1つから、マッチしなかった文字列を戻り値とする
-            # 度のワーカーでも同じ unmatched_str を保持しているため、便宜的に0番目を返している
+            # どのワーカーでも同じ unmatched_str を保持しているため、便宜的に0番目を返している
             ret_val = self.workers[0].unmatched_str
             pass
 
         return ret_val
 
-    def flush(self,opts={}):
+    def flush(self, opts={}):
         """
         put処理が終了したあと、未消費のトークンバッファが残っている場合があるため、
         すべてのput処理が終了したあと、本メソッドを呼出し未消費のトークンバッファを取得する
@@ -177,7 +209,7 @@ class TokFlow:
                 final_str = self.not_consumed_str
                 pass
             elif out_type == "full":
-                final_str = self.prev_output_full_sentence+self.not_consumed_str
+                final_str = self.prev_output_full_sentence + self.not_consumed_str
                 pass
             else:
                 raise ValueError(f'unknown out_type:"{out_type}"')
@@ -195,7 +227,6 @@ class TokFlow:
 
         self.prev_output_full_sentence = ""
         self.prev_input_full_sentence = ""
-
 
         return final_str
 
