@@ -14,8 +14,8 @@ def test_eat_appear_at_first():
 
     if False:
         print(
-            f"\n potential:{m.str_matching_started} appeared:'{m.search_str_appeared}' output:'{m.converted}' send_next:'{m.str_to_be_process_next}' failure:{m.confirmed_not_to_appear}")
-    assert m.str_matching_started is True
+            f"\n potential:{m.is_possible_str_started} appeared:'{m.search_str_appeared}' output:'{m.converted}' send_next:'{m.str_to_be_process_next}' failure:{m.confirmed_not_to_appear}")
+    assert m.is_possible_str_started is True
     assert m.search_str_appeared is True
     assert m.converted == "9★★"
     assert m.str_to_be_process_next == "<"
@@ -29,7 +29,7 @@ def test_eat_appear_at_2nd():
     m = TokFlowWorker(*INIT_ARGS)
     m.eat("abc<")
 
-    assert m.str_matching_started is True  # "<"　があるので、ポテンシャルはあるが
+    assert m.is_possible_str_started is True  # "<"　があるので、ポテンシャルはあるが
     assert m.search_str_appeared is False  # まだ発見に至っていない
     assert m.converted == ""
     assert m.str_to_be_process_next == ""
@@ -39,9 +39,9 @@ def test_eat_appear_at_2nd():
 
     if False:
         print(
-            f"\n potential:{m.str_matching_started} appeared:'{m.search_str_appeared}' output:'{m.converted}' send_next:'{m.str_to_be_process_next}' failure:{m.confirmed_not_to_appear}")
+            f"\n potential:{m.is_possible_str_started} appeared:'{m.search_str_appeared}' output:'{m.converted}' send_next:'{m.str_to_be_process_next}' failure:{m.confirmed_not_to_appear}")
 
-    assert m.str_matching_started is True
+    assert m.is_possible_str_started is True
     assert m.search_str_appeared is True
     assert m.converted == "abc★"
     assert m.str_to_be_process_next == ""
@@ -59,9 +59,9 @@ def test_eat_appear_at_3rd():
 
     if False:
         print(
-            f"\n potential:{m.str_matching_started} appeared:'{m.search_str_appeared}' output:'{m.converted}' send_next:'{m.str_to_be_process_next}' failure:{m.confirmed_not_to_appear}")
+            f"\n potential:{m.is_possible_str_started} appeared:'{m.search_str_appeared}' output:'{m.converted}' send_next:'{m.str_to_be_process_next}' failure:{m.confirmed_not_to_appear}")
 
-    assert m.str_matching_started is True
+    assert m.is_possible_str_started is True
     assert m.search_str_appeared is True
     assert m.converted == "abc★"
     assert m.str_to_be_process_next == "DDD"
@@ -79,7 +79,7 @@ def test_eat_appear_from_splited_1():
     m.eat("L")
     m.eat(">")
 
-    assert m.str_matching_started is True
+    assert m.is_possible_str_started is True
     assert m.search_str_appeared is True
     assert m.converted == "★"
     assert m.str_to_be_process_next == ""
@@ -98,7 +98,7 @@ def test_eat_appear_from_splited_2():
     m.eat("L")
     m.eat(">")
 
-    assert m.str_matching_started is True
+    assert m.is_possible_str_started is True
     assert m.search_str_appeared is True
     assert m.converted == "★"
     assert m.str_to_be_process_next == ""
@@ -115,7 +115,7 @@ def test_eat_appear_from_splited_3():
     m.eat("<NL")
     m.eat(">")
 
-    assert m.str_matching_started is True
+    assert m.is_possible_str_started is True
     assert m.search_str_appeared is True
     assert m.converted == "★"
     assert m.str_to_be_process_next == ""
@@ -131,7 +131,7 @@ def test_eat_appear_from_splited_4():
 
     m.eat("<NL>")
 
-    assert m.str_matching_started is True
+    assert m.is_possible_str_started is True
     assert m.search_str_appeared is True
     assert m.converted == "★"
     assert m.str_to_be_process_next == ""
@@ -148,7 +148,7 @@ def test_eat_appear_from_splited_5():
     m.eat("<N")
     m.eat("L>")
 
-    assert m.str_matching_started is True
+    assert m.is_possible_str_started is True
     assert m.search_str_appeared is True
     assert m.converted == "★"
     assert m.str_to_be_process_next == ""
@@ -165,7 +165,7 @@ def test_eat_appear_from_splited_6():
     m.eat("<")
     m.eat("NL>")
 
-    assert m.str_matching_started is True
+    assert m.is_possible_str_started is True
     assert m.search_str_appeared is True
     assert m.converted == "★"
     assert m.str_to_be_process_next == ""
@@ -183,9 +183,9 @@ def test_eat_appear_with_love_fragments_1():
 
     if False:
         print(
-            f"\n potential:{m.str_matching_started} appeared:'{m.search_str_appeared}' output:'{m.converted}' send_next:'{m.str_to_be_process_next}' failure:{m.confirmed_not_to_appear}")
+            f"\n potential:{m.is_possible_str_started} appeared:'{m.search_str_appeared}' output:'{m.converted}' send_next:'{m.str_to_be_process_next}' failure:{m.confirmed_not_to_appear}")
 
-    assert m.str_matching_started is True
+    assert m.is_possible_str_started is True
     assert m.search_str_appeared is True
     assert m.converted == ">★"
     assert m.str_to_be_process_next == ""
@@ -203,9 +203,9 @@ def test_eat_appear_with_love_fragments_2():
 
     if False:
         print(
-            f"\n potential:{m.str_matching_started} appeared:'{m.search_str_appeared}' output:'{m.converted}' send_next:'{m.str_to_be_process_next}' failure:{m.confirmed_not_to_appear}")
+            f"\n potential:{m.is_possible_str_started} appeared:'{m.search_str_appeared}' output:'{m.converted}' send_next:'{m.str_to_be_process_next}' failure:{m.confirmed_not_to_appear}")
 
-    assert m.str_matching_started is True
+    assert m.is_possible_str_started is True
     assert m.search_str_appeared is True
     assert m.converted == "<★"
     assert m.str_to_be_process_next == ""
@@ -223,9 +223,9 @@ def test_eat_appear_with_love_fragments_3():
 
     if False:
         print(
-            f"\n potential:{m.str_matching_started} appeared:'{m.search_str_appeared}' output:'{m.converted}' send_next:'{m.str_to_be_process_next}' failure:{m.confirmed_not_to_appear}")
+            f"\n potential:{m.is_possible_str_started} appeared:'{m.search_str_appeared}' output:'{m.converted}' send_next:'{m.str_to_be_process_next}' failure:{m.confirmed_not_to_appear}")
 
-    assert m.str_matching_started is True
+    assert m.is_possible_str_started is True
     assert m.search_str_appeared is True
     assert m.converted == "<★"
     assert m.str_to_be_process_next == "<"
@@ -244,9 +244,9 @@ def test_eat_possible_to_match_pattern_1():
 
     if False:
         print(
-            f"\n potential:{m.str_matching_started} appeared:'{m.search_str_appeared}' output:'{m.converted}' send_next:'{m.str_to_be_process_next}' failure:{m.confirmed_not_to_appear}")
+            f"\n potential:{m.is_possible_str_started} appeared:'{m.search_str_appeared}' output:'{m.converted}' send_next:'{m.str_to_be_process_next}' failure:{m.confirmed_not_to_appear}")
 
-    assert m.str_matching_started is True
+    assert m.is_possible_str_started is True
     assert m.search_str_appeared is False
     assert m.converted == ""
     assert m.str_to_be_process_next == ""
@@ -266,9 +266,9 @@ def test_eat_confirmed_no_appear_pattern_1():
 
     if False:
         print(
-            f"\n potential:{m.str_matching_started} appeared:'{m.search_str_appeared}' output:'{m.converted}' send_next:'{m.str_to_be_process_next}' failure:{m.confirmed_not_to_appear}")
+            f"\n potential:{m.is_possible_str_started} appeared:'{m.search_str_appeared}' output:'{m.converted}' send_next:'{m.str_to_be_process_next}' failure:{m.confirmed_not_to_appear}")
 
-    assert m.str_matching_started is False
+    assert m.is_possible_str_started is False
     assert m.search_str_appeared is False
     assert m.converted == ""
     assert m.str_to_be_process_next == ""
@@ -285,7 +285,7 @@ def test_eat_confirmed_no_appear_pattern_2():
     m.eat("N")
     m.eat(">")
 
-    assert m.str_matching_started is False
+    assert m.is_possible_str_started is False
     assert m.search_str_appeared is False
     assert m.converted == ""
     assert m.str_to_be_process_next == ""
@@ -301,7 +301,7 @@ def test_eat_confirmed_no_appear_pattern_3():
     m.eat("<")
     m.eat("A")
 
-    assert m.str_matching_started is False
+    assert m.is_possible_str_started is False
     assert m.search_str_appeared is False
     assert m.converted == ""
     assert m.str_to_be_process_next == ""

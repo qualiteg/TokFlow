@@ -5,7 +5,7 @@ sys.path.append('../')
 import time
 from tokflow import TokFlow
 
-from example_data import get_example_texts
+from data.example_text_data_full_stream_long_ja import get_example_texts
 
 TEXTS = get_example_texts()
 
@@ -23,7 +23,7 @@ for input_token_base in TEXTS:
     print(f"{output_token}")
     print("-----------------------------------")
     # Included wait to show the sequential generation operation.
-    time.sleep(0.1)
+    time.sleep(0.05)
 
 # Remember to output the remaining buffer at the very end. Buffers may be empty characters.
 print(f"{tokf.flush()}", end="", flush=True)

@@ -112,6 +112,25 @@ Specify rules like `condition = {"in_type": "full", "out_type": "full"}`, and us
     output_sentence = tokf.flush(condition)
 ```
 
+
+# SentenceStop Class
+
+The SentenceStop class is designed to detect specific keywords and stop text generation at the point where the keyword is found. It assumes a situation where text is input one character at a time.
+
+## Main Features
+
+- **Detection of specific keywords**: Detects specific keywords within the string. The detected keywords are treated as stop strings.
+- **Stop text generation**: Stops text generation at the position of the detected stop string. Specifically, it returns the text at the point where the stop string is detected.
+- **Real-time processing**: Assumes a situation where strings are input one character at a time, enabling real-time processing.
+
+## How to use
+
+Specify the keywords to stop at initialization. After that, input one character at a time with the `put` method, and if a stop string is found, it returns the text at that point. When all inputs are finished, use the `flush` method to perform the remaining processing.
+
+
+
+
+
 # Processing
 
 ## About Internal processing
@@ -131,4 +150,31 @@ it is determined that it cannot be a search target string.
 In this way, by buffering until the appearance of the search target string,
 most sequential tokens can be displayed as they are, while replacement is delayed when necessary,
 enabling stream processing.
+
+# TokFlow License
+
+## Open source license
+
+The open source license has been specifically designed to enable the development of open source and personal projects using TokFlow. The open source license associated with TokFlow is the [GNU General Public License version 3 (GPLv3)](https://www.gnu.org/licenses/gpl-3.0.html). 
+The GPLv3 has many terms, yet perhaps the most crucial is its 'sticky' nature when you distribute your work publicly. 
+As outlined in the [GPL FAQ](https://www.gnu.org/licenses/gpl-faq.html):
+
+> "Upon releasing a modified version of your program to the public, the GPLv3 requires you to make the modified source code available to the users of your program, under the GPLv3."
+
+Publicly releasing your project that utilises TokFlow under the GPLv3, in turn, 
+requires your project to be licensed under the GPLv3. 
+If you're comfortable with this, you're more than welcome to use TokFlow under the GPLv3, 
+without the need to acquire a commercial license.
+
+However, if you wish to include this library in your tool and distribute it under a license other than the GPLv3, 
+or if you wish to distribute it for a fee, 
+or should you want to use it for commercial purposes, 
+obtaining a commercial license will be necessary. 
+Please don't hesitate to contact us for discussion.
+
+## Commercial OEM License
+
+If you want to include TokFlow as part of a commercial product, SDK, or toolkit, 
+choose the Commercial OEM license. 
+Commercial OEM licenses are customized for each customer. Contact `riversun.org@gmail.com`
 
