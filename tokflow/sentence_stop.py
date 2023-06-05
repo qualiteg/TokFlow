@@ -2,8 +2,23 @@ from tokflow import TokFlow
 
 
 class SentenceStop:
-    def __init__(self, stop_strs):
+    """
+    SentenceStopクラスは特定のキーワードを検出し、そのキーワードが見つかった時点でテキスト生成を停止する目的で設計されたクラス。
+    テキストは１文字ずつ入力される状況を想定している。
 
+    opts.in_type="spot" の場合は、センテンスの差分が1文字ずつ追加される状況を想定
+    opts.in_type="full" の場合は、センテンス全体に1文字ずつ追加されていく状況を想定
+
+
+    このクラスは、例えばリアルタイムに文章を生成しながら特定のキーワードが入力されるのを監視したいというシチュエーションで役立つ。
+    """
+
+    def __init__(self, stop_strs):
+        """
+        SentenceStopクラスの初期化メソッド。
+
+        :param stop_strs: テキスト生成を停止するためのキーワードリスト。
+        """
         self.stop_strs = stop_strs
 
         self.to_replace_word = "\n"
@@ -12,7 +27,14 @@ class SentenceStop:
         self.tokf = TokFlow(tuples)
 
     def put(self, input_token_base, condition):
+        """
+        入力された文字列と条件を受け取り、その文字列を `TokFlow` によって処理し、停止文字列が見つかったかどうかを返す。
+        停止文字列が見つかった場合は、その前までのテキストと見つかった停止文字列も返す。
 
+        :param input_token_base: 入力される基底トークン。
+        :param condition: トークンの配置を決定するための条件。
+        :return: 停止文字列が見つかったかどうか、その前までのテキスト、見つかった停止文字列（見つかった場合）を含む辞書。
+        """
         tokf = self.tokf
 
         output_token = tokf.put(input_token_base, condition)
@@ -29,7 +51,12 @@ class SentenceStop:
                     "stop_str": None}
 
     def flush(self, condition):
+        """
+        条件を受け取り、それまでの入力を全て処理する。停止文字列が見つかった場合はその前までのテキストを返し、見つからなかった場合は入力全体を返す。
 
+        :param condition: トークンの配置を決定するための条件。
+        :return: 停止文字列が見つかった場合はその前までのテキスト、見つからなかった場合は入力全体を返す。
+        """
         tokf = self.tokf
         flush_text = tokf.flush(condition)
 
