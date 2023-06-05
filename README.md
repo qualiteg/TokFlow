@@ -112,6 +112,25 @@ Specify rules like `condition = {"in_type": "full", "out_type": "full"}`, and us
     output_sentence = tokf.flush(condition)
 ```
 
+
+# SentenceStop Class
+
+The SentenceStop class is designed to detect specific keywords and stop text generation at the point where the keyword is found. It assumes a situation where text is input one character at a time.
+
+## Main Features
+
+- **Detection of specific keywords**: Detects specific keywords within the string. The detected keywords are treated as stop strings.
+- **Stop text generation**: Stops text generation at the position of the detected stop string. Specifically, it returns the text at the point where the stop string is detected.
+- **Real-time processing**: Assumes a situation where strings are input one character at a time, enabling real-time processing.
+
+## How to use
+
+Specify the keywords to stop at initialization. After that, input one character at a time with the `put` method, and if a stop string is found, it returns the text at that point. When all inputs are finished, use the `flush` method to perform the remaining processing.
+
+
+
+
+
 # Processing
 
 ## About Internal processing
