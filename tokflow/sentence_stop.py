@@ -26,6 +26,11 @@ class SentenceStop:
 
         self.tokf = TokFlow(tuples)
 
+        self.first_sentence = None
+
+    def clear(self):
+        self.first_sentence = None
+
     def put(self, input_token_base, condition):
         """
         入力された文字列と条件を受け取り、その文字列を `TokFlow` によって処理し、停止文字列が見つかったかどうかを返す。
@@ -33,11 +38,31 @@ class SentenceStop:
 
         :param input_token_base: 入力される基底トークン。
         :param condition: トークンの配置を決定するための条件。
+                condition.in_type="spot" の場合は、センテンスの差分が1文字ずつ追加される状況を想定
+                condition.in_type="full" の場合は、センテンス全体に1文字ずつ追加されていく状況を想定
+                condition.skip_existing_stop_str = True の場合は、最初に put した文字列に停止文字列が入っていてもそれは無視して進める
+                condition.mask_char は skip_existing_stop_str が Trueの場合、最初に put した文字列内のあらゆる文字を無視させるためのマスク文字。デフォルトは「*」。停止文字列が「*」の場合は動作しなくなるため、別の文字をセットする
         :return: 停止文字列が見つかったかどうか、その前までのテキスト、見つかった停止文字列（見つかった場合）を含む辞書。
         """
         tokf = self.tokf
 
-        output_token = tokf.put(input_token_base, condition)
+        input_text = input_token_base
+
+        if condition.get("skip_existing_stop_str", False):
+            mask_char = condition.get("mask_char", "*")
+
+            if self.first_sentence is None:
+                self.first_sentence = input_token_base
+
+            len_first_sentence = len(self.first_sentence)
+
+            input_text = mask_char * len_first_sentence + input_text[len_first_sentence:]
+
+        output_token = tokf.put(input_text, condition)
+
+        if condition.get("skip_existing_stop_str", False):
+            # 埋めた部分を元の内容に戻す
+            output_token = self.first_sentence[:len_first_sentence] + output_token[len_first_sentence:]
 
         if tokf.is_matched:
             matched_worker = tokf.matched_worker
