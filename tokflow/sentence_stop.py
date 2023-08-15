@@ -40,7 +40,7 @@ class SentenceStop:
         :param condition: トークンの配置を決定するための条件。
                 condition.in_type="spot" の場合は、センテンスの差分が1文字ずつ追加される状況を想定
                 condition.in_type="full" の場合は、センテンス全体に1文字ずつ追加されていく状況を想定
-                condition.skip_existing_stop_str = True の場合は、最初に put した文字列に停止文字列が入っていてもそれは無視して進める
+                condition.skip_existing_stop_str = True の場合は、初回に put したテキストに停止文字列が入っていても、そこで停止せずスキップして先を進める。初回を明示的に指定するには #clear メソッドを呼び出して既存入力テキストをクリアしておくこと。
                 condition.mask_char は skip_existing_stop_str が Trueの場合、最初に put した文字列内のあらゆる文字を無視させるためのマスク文字。デフォルトは「*」。停止文字列が「*」の場合は動作しなくなるため、別の文字をセットする
         :return: 停止文字列が見つかったかどうか、その前までのテキスト、見つかった停止文字列（見つかった場合）を含む辞書。
         """
@@ -49,7 +49,9 @@ class SentenceStop:
         input_text = input_token_base
 
         if condition.get("skip_existing_stop_str", False):
-            mask_char = condition.get("mask_char", "*")
+            # 初回putされたテキストに停止文字列が含まれていても停止処理をスキップするモードのとき
+
+            mask_char = condition.get("mask_char", "*") # マスク文字列を取得
 
             if self.first_sentence is None:
                 self.first_sentence = input_token_base
@@ -61,7 +63,7 @@ class SentenceStop:
         output_token = tokf.put(input_text, condition)
 
         if condition.get("skip_existing_stop_str", False):
-            # 埋めた部分を元の内容に戻す
+            # マスク文字列（デフォルト「*」）でマスクした部分を元の内容に戻す
             output_token = self.first_sentence[:len_first_sentence] + output_token[len_first_sentence:]
 
         if tokf.is_matched:
@@ -84,6 +86,13 @@ class SentenceStop:
         """
         tokf = self.tokf
         flush_text = tokf.flush(condition)
+
+        if condition.get("skip_existing_stop_str", False):
+            # 初回putされたテキストに停止文字列が含まれていても停止処理をスキップするモードのとき
+
+            # マスク文字列（デフォルト「*」）でマスクした部分を元の内容に戻す
+            len_first_sentence = len(self.first_sentence)
+            flush_text = self.first_sentence[:len_first_sentence] + flush_text[len_first_sentence:]
 
         if tokf.is_matched:
             # マッチした場合はflushもbuffering途中のものは出力されないので、結果的にflush前の最後のtextと同じものが出力される
