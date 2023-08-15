@@ -20,6 +20,7 @@ def test_stop_strs_found():
     flush_text = ""
     last_text = ""
     for input_token_base in TEXTS:
+        # input_token_baseはその瞬間の入力テキスト
         dict = sens.put(input_token_base, condition)
         text = dict.get("text")
         stop_str_found = dict.get("stop_str_found", False)
