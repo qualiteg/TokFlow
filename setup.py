@@ -3,8 +3,8 @@ from setuptools import setup, find_packages
 setup(
     name="tokflow",
     version="1.3.1",
-    author="Tom Misawa",
-    author_email="riversun.org@gmail.com",
+    author="Qualiteg Inc.",
+    author_email="qualiteger@qualiteg.com",
     description="LLM utility of streaming token realtime replacement processing",
     long_description=open("README.md", "r").read(),
     long_description_content_type="text/markdown",

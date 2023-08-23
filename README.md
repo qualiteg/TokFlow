@@ -176,5 +176,9 @@ Please don't hesitate to contact us for discussion.
 
 If you want to include TokFlow as part of a commercial product, SDK, or toolkit, 
 choose the Commercial OEM license. 
-Commercial OEM licenses are customized for each customer. Contact `riversun.org@gmail.com`
+Commercial OEM licenses are customized for each customer. 
+Feel free to contact 
+https://qualiteg.com/
+
+
 
