@@ -8,7 +8,7 @@ setup(
     description="LLM utility of streaming token realtime replacement processing",
     long_description=open("README.md", "r").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/riversun/TokFlow",
+    url="https://github.com/qualiteg/TokFlow",
     packages=find_packages(exclude=["tests.*", "tests", "examples.*", "examples"]),
     tests_require=["pytest"],
     classifiers=[
